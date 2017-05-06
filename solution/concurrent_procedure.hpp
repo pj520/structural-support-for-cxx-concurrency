@@ -29,7 +29,7 @@ auto make_concurrent_procedure(F&& f, Args&&... args) requires
 
 auto make_concurrent_procedure() {
   return [](auto&& modifier, auto&&) {
-    return std::forward<decltype(modifier)>(modifier);
+    return std::move(modifier);
   };
 }
 
@@ -44,9 +44,11 @@ class ConcurrentProcedureTemplate {
   }
 
  protected:
-  template <class... ConcurrentInvokers>
-  void fork(ConcurrentInvokers&&... invokers) {
-    modifier_ = concurrent_fork(std::move(modifier_), callback_, invokers...);
+  ConcurrentProcedureTemplate() = default;
+
+  template <class... ConcurrentCallers>
+  void fork(ConcurrentCallers&&... callers) {
+    modifier_ = concurrent_fork(std::move(modifier_), callback_, callers...);
   }
 
   virtual void run() = 0;

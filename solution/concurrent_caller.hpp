@@ -28,12 +28,12 @@ class ConcurrentCaller0D {
 
   constexpr std::size_t size() const { return 1u; }
 
-  template <class LinearBuffer, class Runnable>
-  void call(LinearBuffer& buffer, const Runnable& callback) requires
+  template <class LinearBuffer, class Callback>
+  void call(LinearBuffer& buffer, const Callback& callback) requires
       requirements::Callable<ConcurrentCallable,
                              void,
                              decltype(buffer.fetch()),
-                             Runnable>() {
+                             Callback>() {
     callable_(buffer.fetch(), copy_construct(callback));
   }
 
@@ -58,12 +58,12 @@ class ConcurrentCaller1D {
 
   std::size_t size() const { return data_.size(); }
 
-  template <class LinearBuffer, class Runnable>
-  void call(LinearBuffer& buffer, const Runnable& callback) requires
+  template <class LinearBuffer, class Callback>
+  void call(LinearBuffer& buffer, const Callback& callback) requires
       requirements::Callable<ConcurrentCallable,
                              void,
                              decltype(buffer.fetch()),
-                             Runnable>() {
+                             Callback>() {
     for (auto& callable : data_) {
       callable(buffer.fetch(), copy_construct(callback));
     }
@@ -100,12 +100,12 @@ class ConcurrentCaller2D {
 
   std::size_t size() const { return data_.size(); }
 
-  template <class LinearBuffer, class Runnable>
-  void call(LinearBuffer& buffer, const Runnable& callback) requires
+  template <class LinearBuffer, class Callback>
+  void call(LinearBuffer& buffer, const Callback& callback) requires
       requirements::Callable<ConcurrentCallable,
                              void,
                              decltype(buffer.fetch()),
-                             Runnable>() {
+                             Callback>() {
     std::vector<decltype(buffer.fetch())> modifiers;
     modifiers.reserve(data_.size());
     for (std::size_t i = 0; i < data_.size(); ++i) {

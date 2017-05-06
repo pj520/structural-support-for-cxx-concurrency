@@ -35,21 +35,21 @@ inline std::size_t count_call(
 }
 
 template <class LinearBuffer,
-          class SerialCallable,
+          class Callback,
           class ConcurrentCaller>
 inline void concurrent_call(LinearBuffer&& buffer,
-                            const SerialCallable& callback,
+                            const Callback& callback,
                             ConcurrentCaller& caller) {
   caller.call(buffer, callback);
 }
 
 template <class LinearBuffer,
-          class SerialCallable,
+          class Callback,
           class FirstConcurrentCaller,
           class... OtherConcurrentCallers>
 inline void concurrent_call(
     LinearBuffer&& buffer,
-    const SerialCallable& callback,
+    const Callback& callback,
     FirstConcurrentCaller& first_caller,
     OtherConcurrentCallers&... other_callers) {
   concurrent_call(buffer, callback, first_caller);
