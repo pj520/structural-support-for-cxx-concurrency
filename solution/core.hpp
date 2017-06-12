@@ -151,7 +151,7 @@ template <class AtomicCounterModifier,
 void concurrent_fork(AtomicCounterModifier& modifier,
                      const Callback& callback,
                      ConcurrentCallers&&... callers) requires
-    ///requirements::AtomicCounterModifier<AtomicCounterModifier>() &&
+    requirements::AtomicCounterModifier<AtomicCounterModifier>() &&
     requirements::Callable<Callback, void>() &&
     requirements::ConcurrentCallerAll<
         decltype(modifier.increase(0u)),
