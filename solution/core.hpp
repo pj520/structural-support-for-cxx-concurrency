@@ -148,23 +148,23 @@ void async_concurrent_invoke(const Callback& callback,
 template <class AtomicCounterModifier,
           class Callback,
           class... ConcurrentCallers>
-auto concurrent_fork(AtomicCounterModifier&& modifier,
+void concurrent_fork(AtomicCounterModifier& modifier,
                      const Callback& callback,
                      ConcurrentCallers&&... callers) requires
-    requirements::AtomicCounterModifier<AtomicCounterModifier>() &&
+    ///requirements::AtomicCounterModifier<AtomicCounterModifier>() &&
     requirements::Callable<Callback, void>() &&
     requirements::ConcurrentCallerAll<
         decltype(modifier.increase(0u)),
         Callback,
         ConcurrentCallers...>() {
-  auto buffer = modifier.increase(count_call(callers...));
-  concurrent_call(buffer, callback, callers...);
-  return buffer.fetch();
+  concurrent_call(modifier.increase(count_call(callers...)),
+                  callback,
+                  callers...);
 }
 
 template <class AtomicCounterModifier,
           class Callback>
-void concurrent_join(AtomicCounterModifier&& modifier,
+void concurrent_join(AtomicCounterModifier& modifier,
                      Callback& callback) requires
     requirements::AtomicCounterModifier<AtomicCounterModifier>() &&
     requirements::Callable<Callback, void>() {

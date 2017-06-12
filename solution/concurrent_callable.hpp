@@ -18,8 +18,8 @@
 
 namespace con {
 
-template <class Portal = abstraction::ConcurrentCallablePortal,
-          class ConcurrentProcedure = abstraction::ConcurrentProcedure>
+template <class Portal = abstraction::SharedProxy<abstraction::ConcurrentCallablePortal>,
+          class ConcurrentProcedure = abstraction::SharedProxy<abstraction::ConcurrentProcedure>>
 class SinglePhaseConcurrentCallable {
  private:
   class Callable {
@@ -29,8 +29,8 @@ class SinglePhaseConcurrentCallable {
 
     template <class AtomicCounterModifier, class Callback>
     void operator()(AtomicCounterModifier&& modifier, Callback&& callback) {
-      concurrent_join(procedure_(std::move(modifier),
-                                 copy_construct(callback)), callback);
+      procedure_(modifier, callback);
+      concurrent_join(modifier, callback);
     }
 
    private:
@@ -45,14 +45,12 @@ class SinglePhaseConcurrentCallable {
 
   template <class AtomicCounterModifier, class Callback>
   void operator()(AtomicCounterModifier&& modifier,
-                  Callback&& callback) requires
-      requirements::ConcurrentProcedure<
-          ConcurrentProcedure, AtomicCounterModifier, Callback>() &&
+                  const Callback& callback) requires
       requirements::Callable<
-          Portal, void, Callable, AtomicCounterModifier, Callback>() {
+          ConcurrentProcedure, void, AtomicCounterModifier, Callback>() {
     portal_(std::move(callable_),
             std::forward<AtomicCounterModifier>(modifier),
-            std::forward<Callback>(callback));
+            copy_construct(callback));
   }
 
  private:
@@ -60,8 +58,8 @@ class SinglePhaseConcurrentCallable {
   Callable callable_;
 };
 
-template <class Portal = abstraction::ConcurrentCallablePortal,
-          class ConcurrentProcedure = abstraction::ConcurrentProcedure,
+template <class Portal = abstraction::SharedProxy<abstraction::ConcurrentCallablePortal>,
+          class ConcurrentProcedure = abstraction::SharedProxy<abstraction::ConcurrentProcedure>,
           class Container = std::queue<std::pair<Portal, ConcurrentProcedure>>>
 class MultiPhaseConcurrentCallable {
  private:
@@ -73,8 +71,10 @@ class MultiPhaseConcurrentCallable {
 
     template <class AtomicCounterModifier, class Callback>
     void operator()(AtomicCounterModifier&& modifier, Callback&& callback) {
-       execute(procedure_(std::move(modifier), copy_construct(callback)),
-               std::forward<Callback>(callback), rest_);
+      procedure_(modifier, callback);
+      execute(std::forward<AtomicCounterModifier>(modifier),
+              std::forward<Callback>(callback),
+              rest_);
     }
 
    private:
@@ -90,13 +90,11 @@ class MultiPhaseConcurrentCallable {
 
   template <class AtomicCounterModifier, class Callback>
   void operator()(AtomicCounterModifier&& modifier,
-                  Callback&& callback) requires
-      requirements::ConcurrentProcedure<
-          ConcurrentProcedure, AtomicCounterModifier, Callback>() &&
+                  const Callback& callback) requires
       requirements::Callable<
-          Portal, void, Callable, AtomicCounterModifier, Callback>() {
+          ConcurrentProcedure, void, AtomicCounterModifier, Callback>() {
     execute(std::forward<AtomicCounterModifier>(modifier),
-            std::forward<Callback>(callback), data_);
+            copy_construct(callback), data_);
   }
 
  private:

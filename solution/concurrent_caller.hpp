@@ -19,7 +19,7 @@
 
 namespace con {
 
-template <class ConcurrentCallable = abstraction::ConcurrentCallable>
+template <class ConcurrentCallable = abstraction::SharedProxy<abstraction::ConcurrentCallable>>
 class ConcurrentCaller0D {
  public:
   template <class T>
@@ -34,7 +34,7 @@ class ConcurrentCaller0D {
                              void,
                              decltype(buffer.fetch()),
                              Callback>() {
-    callable_(buffer.fetch(), copy_construct(callback));
+    callable_(buffer.fetch(), callback);
   }
 
  private:
@@ -47,7 +47,7 @@ auto make_concurrent_caller(ConcurrentCallable&& callable) {
       std::forward<ConcurrentCallable>(callable));
 }
 
-template <class ConcurrentCallable = abstraction::ConcurrentCallable,
+template <class ConcurrentCallable = abstraction::SharedProxy<abstraction::ConcurrentCallable>,
           class Container = std::vector<ConcurrentCallable>>
 class ConcurrentCaller1D {
  public:
@@ -65,7 +65,7 @@ class ConcurrentCaller1D {
                              decltype(buffer.fetch()),
                              Callback>() {
     for (auto& callable : data_) {
-      callable(buffer.fetch(), copy_construct(callback));
+      callable(buffer.fetch(), callback);
     }
   }
 
@@ -83,8 +83,8 @@ auto make_concurrent_caller(std::size_t count,
   return res;
 }
 
-template <class ExecutionAgentPortal = abstraction::ConcurrentCallablePortal,
-          class ConcurrentCallable = abstraction::ConcurrentCallable,
+template <class ExecutionAgentPortal = abstraction::SharedProxy<abstraction::ConcurrentCallablePortal>,
+          class ConcurrentCallable = abstraction::SharedProxy<abstraction::ConcurrentCallable>,
           class Container = std::vector<ConcurrentCallable>>
 class ConcurrentCaller2D {
  public:
@@ -113,7 +113,7 @@ class ConcurrentCaller2D {
     }
     auto task = [&, &data = data_](std::size_t first, std::size_t last) mutable {
       for (std::size_t i = first; i < last; ++i) {
-        data[i](std::move(modifiers[i]), copy_construct(callback));
+        data[i](std::move(modifiers[i]), callback);
       }
     };
     ConcurrentCaller1D<decltype(

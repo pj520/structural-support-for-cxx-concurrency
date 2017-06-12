@@ -131,16 +131,19 @@ class TreeAtomicCounter {
       do {
         if (current == MAX_COUNT) {
           init_node(node_, increase_count, buffer);
+          *this = buffer.fetch();
           return buffer;
         }
         increased = std::min(increase_count, MAX_COUNT - current);
       } while (!node_->count_.compare_exchange_weak(
           current, current + increased, std::memory_order_relaxed));
       if (increased != increase_count) {
-        buffer.push(increased, Modifier(node_));
+        if (increased != 1u) {
+          buffer.push(increased - 1u, Modifier(node_));
+        }
         init_node(node_, increase_count - increased, buffer);
       } else {
-        buffer.push(increased + 1u, Modifier(node_));
+        buffer.push(increased, Modifier(node_));
       }
       return buffer;
     }

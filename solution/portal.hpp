@@ -133,7 +133,8 @@ class ThreadPool {
   Queue tasks_;
 };
 
-template <class Task = abstraction::Runnable, class Queue = std::queue<Task>>
+template <class Task = abstraction::SharedProxy<abstraction::Callable<void()>>,
+          class Queue = std::queue<Task>>
 class ThreadPoolPortal {
  public:
   template <class Portal = class ThreadPortal<false>>
@@ -154,8 +155,7 @@ class ThreadPoolPortal {
   template <class F, class... Args>
   void operator()(F&& f, Args&&... args) const requires
       requirements::Callable<F, void, Args...>() {
-    pool_->emplace(bind_simple(std::forward<F>(f),
-                               std::forward<Args>(args)...));
+    pool_->emplace(bind_simple(std::forward<F>(f), std::forward<Args>(args)...));
   }
 
  private:
