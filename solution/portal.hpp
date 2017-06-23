@@ -133,7 +133,7 @@ class ThreadPool {
   Queue tasks_;
 };
 
-template <class Task = abstraction::SharedProxy<abstraction::Callable<void()>>,
+template <class Task = abstraction::Runnable,
           class Queue = std::queue<Task>>
 class ThreadPoolPortal {
  public:

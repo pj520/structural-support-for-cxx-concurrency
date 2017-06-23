@@ -18,8 +18,8 @@
 
 namespace con {
 
-template <class Portal = abstraction::SharedProxy<abstraction::ConcurrentCallablePortal>,
-          class ConcurrentProcedure = abstraction::SharedProxy<abstraction::ConcurrentProcedure>>
+template <class Portal = abstraction::ConcurrentCallablePortal,
+          class ConcurrentProcedure = abstraction::ConcurrentProcedure>
 class SinglePhaseConcurrentCallable {
  private:
   class Callable {
@@ -58,8 +58,8 @@ class SinglePhaseConcurrentCallable {
   Callable callable_;
 };
 
-template <class Portal = abstraction::SharedProxy<abstraction::ConcurrentCallablePortal>,
-          class ConcurrentProcedure = abstraction::SharedProxy<abstraction::ConcurrentProcedure>,
+template <class Portal = abstraction::ConcurrentCallablePortal,
+          class ConcurrentProcedure = abstraction::ConcurrentProcedure,
           class Container = std::queue<std::pair<Portal, ConcurrentProcedure>>>
 class MultiPhaseConcurrentCallable {
  private:

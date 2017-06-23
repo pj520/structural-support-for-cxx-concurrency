@@ -18,9 +18,9 @@ namespace con {
 template <class T>
 class SingleElementBuffer {
  public:
-  template <class... Args>
-  explicit SingleElementBuffer(Args&&... args)
-      : value_(std::forward<Args>(args)...) {}
+  SingleElementBuffer(const SingleElementBuffer&) = default;
+
+  explicit SingleElementBuffer(const T& value) : value_(value) {}
 
   T fetch() const { return value_; }
 
@@ -63,7 +63,7 @@ class BasicAtomicCounter {
 
     SingleElementBuffer<Modifier> increase(std::size_t increase_count) const {
       count_->fetch_add(increase_count, std::memory_order_relaxed);
-      return SingleElementBuffer<Modifier>(count_);
+      return SingleElementBuffer<Modifier>(*this);
     }
 
     bool decrement() {
@@ -82,7 +82,7 @@ class BasicAtomicCounter {
   class Initializer {
    public:
     SingleElementBuffer<Modifier> operator()(std::size_t init_count) const {
-      return SingleElementBuffer<Modifier>(new std::atomic_size_t(init_count));
+      return SingleElementBuffer<Modifier>(Modifier(new std::atomic_size_t(init_count)));
     }
   };
 };
@@ -124,7 +124,7 @@ class TreeAtomicCounter {
       return true;
     }
 
-    StackedLinearBuffer<Modifier> increase(std::size_t increase_count) const {
+    StackedLinearBuffer<Modifier> increase(std::size_t increase_count) {
       StackedLinearBuffer<Modifier> buffer;
       std::size_t increased,
                   current = node_->count_.load(std::memory_order_relaxed);

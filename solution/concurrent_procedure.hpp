@@ -48,8 +48,8 @@ class ConcurrentProcedureTemplate {
   virtual void run() = 0;
 
  private:
-  abstraction::DefferedProxy<abstraction::AtomicCounterModifier> modifier_;
-  abstraction::SharedProxy<abstraction::ConcurrentCallback> callback_;
+  abstraction::AtomicCounterModifierReference modifier_;
+  abstraction::ConcurrentCallback callback_;
 };
 
 }

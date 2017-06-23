@@ -19,7 +19,7 @@
 
 namespace con {
 
-template <class ConcurrentCallable = abstraction::SharedProxy<abstraction::ConcurrentCallable>>
+template <class ConcurrentCallable = abstraction::ConcurrentCallable>
 class ConcurrentCaller0D {
  public:
   template <class T>
@@ -47,7 +47,7 @@ auto make_concurrent_caller(ConcurrentCallable&& callable) {
       std::forward<ConcurrentCallable>(callable));
 }
 
-template <class ConcurrentCallable = abstraction::SharedProxy<abstraction::ConcurrentCallable>,
+template <class ConcurrentCallable = abstraction::ConcurrentCallable,
           class Container = std::vector<ConcurrentCallable>>
 class ConcurrentCaller1D {
  public:
@@ -83,8 +83,8 @@ auto make_concurrent_caller(std::size_t count,
   return res;
 }
 
-template <class ExecutionAgentPortal = abstraction::SharedProxy<abstraction::ConcurrentCallablePortal>,
-          class ConcurrentCallable = abstraction::SharedProxy<abstraction::ConcurrentCallable>,
+template <class ExecutionAgentPortal = abstraction::ConcurrentCallablePortal,
+          class ConcurrentCallable = abstraction::ConcurrentCallable,
           class Container = std::vector<ConcurrentCallable>>
 class ConcurrentCaller2D {
  public:
