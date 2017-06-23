@@ -25,8 +25,8 @@ void do_something() {                                                           
 
 int main() {
   con::ConcurrentCaller1D<con::MultiPhaseConcurrentCallable<>> caller;          /// Construct a caller that sequentially call the callable units
-  con::abstraction::SharedProxy<con::abstraction::ConcurrentCallablePortal> thread_pool_portal(                /// Construct a con::ThreadPoolPortal and wrap it into an abstraction
-      con::ThreadPoolPortal<>(1u));                                             /// Note that con::ThreadPoolPortal is NOT CopyConstructible
+  con::abstraction::ConcurrentCallablePortal                                    /// Construct a con::ThreadPoolPortal and wrap it into an abstraction
+      thread_pool_portal(con::ThreadPoolPortal<>(1u));                          /// Note that con::ThreadPoolPortal is NOT CopyConstructible
   for (int i = 1; i <= 10; ++i) {
     con::MultiPhaseConcurrentCallable<> callable;                               /// Each task has 2 phases
     callable.append_phase(                                                      /// Append the first phase and allow the tasks run concurrently with independent thread

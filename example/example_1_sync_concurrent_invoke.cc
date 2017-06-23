@@ -10,28 +10,6 @@
 
 #include "../solution/concurrent.h"
 
-void solve(std::size_t n) {
-  con::sync_concurrent_invoke(
-      [] {},
-      con::make_concurrent_caller(
-          n,
-          con::make_concurrent_callable(
-              con::ThreadPortal<true>(),
-              con::make_concurrent_procedure(do_something))));
-}
-
-void solve(std::size_t n) {
-  con::sync_concurrent_invoke_explicit(
-      con::TreeAtomicCounter<10u>::Initializer(),
-      con::DisposableBinarySemaphore(),
-      [] {},
-      con::make_concurrent_caller(
-          n,
-          con::make_concurrent_callable(
-              con::ThreadPortal<true>(),
-              con::make_concurrent_procedure(do_something))));
-}
-
 int main() {
   con::sync_concurrent_invoke(                                                  /// The "Sync Concurrent Invoke" model
       [] {},                                                                    /// Main thread does nothing but wait for the completion of other tasks.
